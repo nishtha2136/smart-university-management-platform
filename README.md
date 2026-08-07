@@ -56,8 +56,6 @@ All five workflows read from and write to a single shared Google Sheets database
 │   ├── Problem_Analysis.docx
 │   ├── architecture.png
 │   └── Smart_University_Presentation.pptx
-├── demo/
-│   └── demo-video-link.md         # Link to the recorded walkthrough
 └── README.md
 ```
 
@@ -82,10 +80,6 @@ All five workflows read from and write to a single shared Google Sheets database
 
 6. **Activate each workflow** (Publish, in n8n's newer UI).
 
-## Demo Video
-
-See [`demo/demo-video-link.md`](demo/demo-video-link.md).
-
 ## Author
 
-Nishtha — N8N Summer School '26, Assignment 3 (Smart University Management Platform)
+Nishtha — N8N workflow automation (Smart University Management Platform)
