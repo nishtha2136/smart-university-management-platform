@@ -1,0 +1,383 @@
+{
+  "name": "Workflow 2 - Attendance Management",
+  "nodes": [
+    {
+      "parameters": {
+        "pollTimes": {
+          "item": [
+            {
+              "mode": "everyMinute"
+            }
+          ]
+        },
+        "documentId": {
+          "__rl": true,
+          "value": "10pKI6N23n-96YT9GFv40DWA_3E2yQTG_6Uv2tKXBkJ8",
+          "mode": "list",
+          "cachedResultName": "Attendance_Raw",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/10pKI6N23n-96YT9GFv40DWA_3E2yQTG_6Uv2tKXBkJ8/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 278590986,
+          "mode": "list",
+          "cachedResultName": "Form Responses 1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/10pKI6N23n-96YT9GFv40DWA_3E2yQTG_6Uv2tKXBkJ8/edit#gid=278590986"
+        },
+        "event": "rowAdded",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheetsTrigger",
+      "typeVersion": 1,
+      "position": [
+        0,
+        0
+      ],
+      "id": "11c9cfcf-c9c8-4940-9df4-1fc368a3ecb9",
+      "name": "Google Sheets Trigger",
+      "credentials": {
+        "googleSheetsTriggerOAuth2Api": {
+          "id": "l73TjyJxVufYjoAe",
+          "name": "Google Sheets Trigger account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "d9bc264a-2a45-49fe-a503-d743fdf60673",
+              "name": "student_email",
+              "value": "={{ $json['Student Email '] }}",
+              "type": "string"
+            },
+            {
+              "id": "9f326c5b-9c50-477e-ba8e-2db284c8585f",
+              "name": "  Course  ",
+              "value": "={{ $json['  Course  '] }}",
+              "type": "string"
+            },
+            {
+              "id": "0fb0fcfd-e22c-4b1f-92a5-68a7c9e1dea7",
+              "name": "  Date  ",
+              "value": "={{ $json['  Date  '] }}",
+              "type": "string"
+            },
+            {
+              "id": "0e79fe55-d728-422a-8a61-1467e05a0e5c",
+              "name": "  Status  ",
+              "value": "={{ $json['  Status  '] }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.5,
+      "position": [
+        224,
+        0
+      ],
+      "id": "4f571e6e-be51-4f54-adda-46110f7b4792",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "1dh-gBo6fGTFWFC2CnmYyT0Dt7eNSksuBIY-tChtsSIs",
+          "mode": "list",
+          "cachedResultName": "University_Database",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1dh-gBo6fGTFWFC2CnmYyT0Dt7eNSksuBIY-tChtsSIs/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 1702442767,
+          "mode": "list",
+          "cachedResultName": "Attendance",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1dh-gBo6fGTFWFC2CnmYyT0Dt7eNSksuBIY-tChtsSIs/edit#gid=1702442767"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "student_email": "={{ $json.student_email }}",
+            "course": "={{ $json['  Course  '] }}",
+            "date": "={{ $json['  Date  '] }}",
+            "status": "={{ $json['  Status  '] }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "student_email",
+              "displayName": "student_email",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "course",
+              "displayName": "course",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "date",
+              "displayName": "date",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "status",
+              "displayName": "status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        448,
+        0
+      ],
+      "id": "8d064086-cc03-4d8c-ad3c-bf5624daea08",
+      "name": "Append row in sheet",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "te5i4J2ATIyPOVs8",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "weeks",
+              "triggerAtDay": [
+                1
+              ],
+              "triggerAtHour": 9
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.3,
+      "position": [
+        -48,
+        240
+      ],
+      "id": "4c7a1442-e1d0-4fa7-8b42-9fc33fece84f",
+      "name": "Schedule Trigger"
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1dh-gBo6fGTFWFC2CnmYyT0Dt7eNSksuBIY-tChtsSIs",
+          "mode": "list",
+          "cachedResultName": "University_Database",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1dh-gBo6fGTFWFC2CnmYyT0Dt7eNSksuBIY-tChtsSIs/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 1702442767,
+          "mode": "list",
+          "cachedResultName": "Attendance",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1dh-gBo6fGTFWFC2CnmYyT0Dt7eNSksuBIY-tChtsSIs/edit#gid=1702442767"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        160,
+        240
+      ],
+      "id": "16e7b95c-ef9a-4ad3-aad7-4db1d2886fdf",
+      "name": "Get row(s) in sheet",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "te5i4J2ATIyPOVs8",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Group attendance records by student\nconst records = items.map(item => item.json);\nconst studentMap = {};\n\nfor (const rec of records) {\n  const email = rec.student_email;\n  if (!studentMap[email]) {\n    studentMap[email] = { total: 0, present: 0, course: rec.course };\n  }\n  studentMap[email].total += 1;\n  if (rec.status === 'Present') {\n    studentMap[email].present += 1;\n  }\n}\n\n// Calculate percentage and build output\nconst results = [];\nfor (const email in studentMap) {\n  const data = studentMap[email];\n  const percentage = (data.present / data.total) * 100;\n  results.push({\n    json: {\n      student_email: email,\n      course: data.course,\n      total_days: data.total,\n      present_days: data.present,\n      attendance_percentage: Math.round(percentage * 100) / 100\n    }\n  });\n}\n\nreturn results;"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        368,
+        240
+      ],
+      "id": "1fe37c0b-1836-4af9-bfbc-8001655c5a7f",
+      "name": "Code in JavaScript"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "d5be4855-c7f7-48a0-956c-b6d902e99cd2",
+              "leftValue": "={{ $json.attendance_percentage }}",
+              "rightValue": 75,
+              "operator": {
+                "type": "number",
+                "operation": "lt"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        576,
+        240
+      ],
+      "id": "5c0bb178-d815-4e2e-893e-ced1324ad636",
+      "name": "If"
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $json.student_email }}",
+        "subject": "Low Attendance Warning",
+        "message": "=Dear Student,       Your current attendance in {{ $json.course }} is {{ $json.attendance_percentage }}%,       which is below the required 75% threshold.       Please improve your attendance to avoid academic penalties.       University Admin Team",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        784,
+        144
+      ],
+      "id": "0f9c441f-63ba-4b40-8350-b2f07bfdc439",
+      "name": "Send a message",
+      "webhookId": "51dfb28d-f80e-4fd8-a7c0-ca6e89dab296",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "6WJdBvN5ZV1LScYk",
+          "name": "Gmail account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Google Sheets Trigger": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "Append row in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Schedule Trigger": {
+      "main": [
+        [
+          {
+            "node": "Get row(s) in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get row(s) in sheet": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "Send a message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false
+  },
+  "versionId": "f7bb3fbc-b180-4145-96fe-86d2e59afe44",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "421f5f2ee7a19de135bba0d431bb55944c6e13a852ca7bf81a7f68e37fd7c2e2"
+  },
+  "nodeGroups": [],
+  "id": "imZ9PKyRMlgkNWuc",
+  "tags": []
+}

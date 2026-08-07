@@ -1,0 +1,709 @@
+{
+  "name": "Workflow 3 - Assignment Evaluation",
+  "nodes": [
+    {
+      "parameters": {
+        "pollTimes": {
+          "item": [
+            {
+              "mode": "everyMinute"
+            }
+          ]
+        },
+        "documentId": {
+          "__rl": true,
+          "value": "1gOKfHPq7iUKuaeRAeNrHDf1kAvSS04MY3-gKE7O6V9k",
+          "mode": "list",
+          "cachedResultName": "Assignment_Raw",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1gOKfHPq7iUKuaeRAeNrHDf1kAvSS04MY3-gKE7O6V9k/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 270912214,
+          "mode": "list",
+          "cachedResultName": "Form Responses 1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1gOKfHPq7iUKuaeRAeNrHDf1kAvSS04MY3-gKE7O6V9k/edit#gid=270912214"
+        },
+        "event": "rowAdded",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheetsTrigger",
+      "typeVersion": 1,
+      "position": [
+        0,
+        0
+      ],
+      "id": "cd642d63-f2f2-4794-953b-c97b14bb5024",
+      "name": "Google Sheets Trigger",
+      "credentials": {
+        "googleSheetsTriggerOAuth2Api": {
+          "id": "l73TjyJxVufYjoAe",
+          "name": "Google Sheets Trigger account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "8ba273bb-0750-446d-9118-19a5a0bf92ef",
+              "name": "Student Email",
+              "value": "={{ $json['Student Email'] }}",
+              "type": "string"
+            },
+            {
+              "id": "b45faa73-72bc-4295-a34f-248b1db9ecba",
+              "name": "Course",
+              "value": "={{ $json.Course }}",
+              "type": "string"
+            },
+            {
+              "id": "31b1a9b9-f5ef-4241-b78f-095a795853eb",
+              "name": "  Assignment Title  ",
+              "value": "={{ $json['  Assignment Title  '] }}",
+              "type": "number"
+            },
+            {
+              "id": "231e6387-1e8a-4ad4-87c0-94c76bbf584d",
+              "name": "file_link",
+              "value": "={{ $json.Submission }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.5,
+      "position": [
+        224,
+        0
+      ],
+      "id": "572177fe-b172-4712-916b-3a92542cabdf",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {
+        "operation": "download",
+        "fileId": {
+          "__rl": true,
+          "value": "={{ $json.file_link.match(/[-\\w]{25,}/)[0] }}",
+          "mode": "id"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        448,
+        0
+      ],
+      "id": "5e61b952-335b-4665-8fe3-ddea859912c8",
+      "name": "Download file",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "XhS7HVM4RcGKQtnd",
+          "name": "Google Drive account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "pdf",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.extractFromFile",
+      "typeVersion": 1.1,
+      "position": [
+        672,
+        0
+      ],
+      "id": "cff783b1-bd70-4e44-a086-be0c9e766a91",
+      "name": "Extract from File"
+    },
+    {
+      "parameters": {
+        "images": {
+          "values": [
+            {}
+          ]
+        },
+        "modelId": {
+          "__rl": true,
+          "value": "=llama-3.3-70b-versatile",
+          "mode": "id"
+        },
+        "responses": {
+          "values": [
+            {
+              "content": "=You are a fair and constructive teaching assistant. Here is a student's assignment submission:\n\n     {{ $json.text }}\n\n     Evaluate it out of 10 based on clarity, correctness, and completeness. \n     Respond ONLY in this exact format:\n     Score: [number]/10\n     Feedback: [2-3 lines of constructive feedback]"
+            }
+          ]
+        },
+        "builtInTools": {},
+        "options": {
+          "store": false
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 2.3,
+      "position": [
+        896,
+        0
+      ],
+      "id": "3a0bdde6-6fad-48e9-a485-cba02caa1d14",
+      "name": "Message a model",
+      "credentials": {
+        "openAiApi": {
+          "id": "mLiExgASr7ZKsc0a",
+          "name": "OpenAI account 4"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "a9f38685-efc5-4f61-9536-dc342cc97478",
+              "name": "Student Email",
+              "value": "={{ $('Edit Fields').item.json['Student Email'] }}",
+              "type": "string"
+            },
+            {
+              "id": "feab44e5-5c38-48f3-a280-71c12f8ba7e5",
+              "name": "Course",
+              "value": "={{ $('Edit Fields').item.json.Course }}",
+              "type": "string"
+            },
+            {
+              "id": "65429ed0-4759-4b2f-835d-83f23403ef69",
+              "name": "  Assignment Title  ",
+              "value": "={{ $('Edit Fields').item.json['  Assignment Title  '] }}",
+              "type": "number"
+            },
+            {
+              "id": "da44ba40-2ab1-4de2-ac0a-dce36e65f226",
+              "name": "ai_score",
+              "value": "={{ $json.output[0].content[0].text.match(/Score:\\s*(\\d+)/)?.[1] || \"N/A\" }}",
+              "type": "string"
+            },
+            {
+              "id": "25666bb5-e0ce-4128-b851-b2fcbd31c851",
+              "name": "ai_feedback",
+              "value": "={{ $json.output[0].content[0].text.match(/Feedback:\\s*([\\s\\S]*)/)?.[1]?.trim() || \"N/A\" }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.5,
+      "position": [
+        1120,
+        0
+      ],
+      "id": "3f9c923a-67e8-4450-9478-49c751adacca",
+      "name": "Edit Fields1"
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "1dh-gBo6fGTFWFC2CnmYyT0Dt7eNSksuBIY-tChtsSIs",
+          "mode": "list",
+          "cachedResultName": "University_Database",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1dh-gBo6fGTFWFC2CnmYyT0Dt7eNSksuBIY-tChtsSIs/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 1526653349,
+          "mode": "list",
+          "cachedResultName": "Assignments",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1dh-gBo6fGTFWFC2CnmYyT0Dt7eNSksuBIY-tChtsSIs/edit#gid=1526653349"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "student_email": "={{ $json['Student Email'] }}",
+            "course": "={{ $json.Course }}",
+            "assignment_title": "={{ $json['  Assignment Title  '] }}",
+            "ai_score": "={{ $json.ai_score }}",
+            "ai_feedback": "={{ $json.ai_feedback }}",
+            "status": "pending_review"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "student_email",
+              "displayName": "student_email",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "course",
+              "displayName": "course",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "assignment_title",
+              "displayName": "assignment_title",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "ai_score",
+              "displayName": "ai_score",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "ai_feedback",
+              "displayName": "ai_feedback",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "status",
+              "displayName": "status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "final_grade",
+              "displayName": "final_grade",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        1344,
+        0
+      ],
+      "id": "d1959995-9c85-4116-8bd0-7c7fe923890d",
+      "name": "Append row in sheet",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "te5i4J2ATIyPOVs8",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sendTo": "nishthakumar21.03@gmail.com",
+        "subject": "=New Assignment Ready for Review - {{ $json.student_email }}",
+        "message": "=A new assignment has been AI-evaluated and is ready for your review.       Student: {{ $json.student_email }}      Course: {{ $json.course }}      Assignment: {{ $json.assignment_title }}      AI Suggested Score: {{ $json.ai_score }}/10      AI Feedback: {{ $json.ai_feedback }}       Please review and approve the final grade.",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        1568,
+        0
+      ],
+      "id": "7f873a61-7869-46d6-b176-a035d8487b47",
+      "name": "Send a message",
+      "webhookId": "4fa669b4-238b-48f6-92f3-e4b7045cc35f",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "6WJdBvN5ZV1LScYk",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "pollTimes": {
+          "item": [
+            {
+              "mode": "everyMinute"
+            }
+          ]
+        },
+        "documentId": {
+          "__rl": true,
+          "value": "1Ng_UpSG0miSRQC4z1Rq0LxCh46zWXs-CbAICR5vIDt4",
+          "mode": "list",
+          "cachedResultName": "Approval_Raw",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1Ng_UpSG0miSRQC4z1Rq0LxCh46zWXs-CbAICR5vIDt4/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 1844090212,
+          "mode": "list",
+          "cachedResultName": "Form Responses 1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1Ng_UpSG0miSRQC4z1Rq0LxCh46zWXs-CbAICR5vIDt4/edit#gid=1844090212"
+        },
+        "event": "rowAdded",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheetsTrigger",
+      "typeVersion": 1,
+      "position": [
+        -16,
+        304
+      ],
+      "id": "2d11c6a1-f9da-456f-9a97-25fb76b2afdd",
+      "name": "Google Sheets Trigger1",
+      "credentials": {
+        "googleSheetsTriggerOAuth2Api": {
+          "id": "l73TjyJxVufYjoAe",
+          "name": "Google Sheets Trigger account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "7c541914-8a6e-4d6f-92fa-bd60934a18f9",
+              "name": "Student Email",
+              "value": "={{ $json['Student Email'] }}",
+              "type": "string"
+            },
+            {
+              "id": "089ffd5e-46e8-4a8e-a19b-44fd31e7de2f",
+              "name": "  Assignment Title  ",
+              "value": "={{ $json['  Assignment Title  '] }}",
+              "type": "number"
+            },
+            {
+              "id": "2a406ade-5d1c-454e-846a-f704995c9e66",
+              "name": "Final Grade",
+              "value": "={{ $json['Final Grade'] }}",
+              "type": "number"
+            },
+            {
+              "id": "8f832f20-2d71-4a99-ad99-15d23ee883bc",
+              "name": "Comments",
+              "value": "={{ $json.Comments }}",
+              "type": "string"
+            }
+          ]
+        },
+        "includeOtherFields": "=",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.5,
+      "position": [
+        208,
+        304
+      ],
+      "id": "e2afa8f8-c1d9-48a8-928e-9ee39f9b68a0",
+      "name": "Edit Fields2"
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "documentId": {
+          "__rl": true,
+          "value": "1dh-gBo6fGTFWFC2CnmYyT0Dt7eNSksuBIY-tChtsSIs",
+          "mode": "list",
+          "cachedResultName": "University_Database",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1dh-gBo6fGTFWFC2CnmYyT0Dt7eNSksuBIY-tChtsSIs/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 1526653349,
+          "mode": "list",
+          "cachedResultName": "Assignments",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1dh-gBo6fGTFWFC2CnmYyT0Dt7eNSksuBIY-tChtsSIs/edit#gid=1526653349"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "final_grade": "={{ $json['Final Grade'] }}",
+            "status": "graded",
+            "assignment_title": "={{ $json['  Assignment Title  '] }}",
+            "student_email": "={{ $json['Student Email'] }}"
+          },
+          "matchingColumns": [
+            "assignment_title"
+          ],
+          "schema": [
+            {
+              "id": "student_email",
+              "displayName": "student_email",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "course",
+              "displayName": "course",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "assignment_title",
+              "displayName": "assignment_title",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "ai_score",
+              "displayName": "ai_score",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "ai_feedback",
+              "displayName": "ai_feedback",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "status",
+              "displayName": "status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "final_grade",
+              "displayName": "final_grade",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "row_number",
+              "displayName": "row_number",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": true,
+              "readOnly": true,
+              "removed": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        432,
+        304
+      ],
+      "id": "fb37de17-64d5-4fce-847a-989f1f20eba6",
+      "name": "Update row in sheet",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "te5i4J2ATIyPOVs8",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $json.student_email }}",
+        "subject": "=Your Grade for {{ $json.assignment_title }}",
+        "message": "=Hi,     \nYour assignment \"{{ $json.assignment_title }}\" has been graded.           \nFinal Grade: {{ $json.final_grade }}/10     \nFaculty Comments: {{ $json.comments }}     \nKeep up the good work!  \nUniversity Faculty",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        656,
+        304
+      ],
+      "id": "471fdef2-be5c-49d0-a5a0-a447088d18be",
+      "name": "Send a message1",
+      "webhookId": "944ad77f-3aae-4442-9770-a587d48e238f",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "6WJdBvN5ZV1LScYk",
+          "name": "Gmail account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Google Sheets Trigger": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "Download file",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Download file": {
+      "main": [
+        [
+          {
+            "node": "Extract from File",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract from File": {
+      "main": [
+        [
+          {
+            "node": "Message a model",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Message a model": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields1": {
+      "main": [
+        [
+          {
+            "node": "Append row in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Append row in sheet": {
+      "main": [
+        [
+          {
+            "node": "Send a message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Sheets Trigger1": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields2": {
+      "main": [
+        [
+          {
+            "node": "Update row in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update row in sheet": {
+      "main": [
+        [
+          {
+            "node": "Send a message1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false
+  },
+  "versionId": "a0444f60-504a-49a6-b994-da4427db6377",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "421f5f2ee7a19de135bba0d431bb55944c6e13a852ca7bf81a7f68e37fd7c2e2"
+  },
+  "nodeGroups": [],
+  "id": "XaTcWRhUAZIKxaFD",
+  "tags": []
+}

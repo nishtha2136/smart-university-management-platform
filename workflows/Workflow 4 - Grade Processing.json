@@ -1,0 +1,353 @@
+{
+  "name": "Workflow 4 - Grade Processing",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "weeks",
+              "triggerAtHour": 18
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.3,
+      "position": [
+        0,
+        0
+      ],
+      "id": "aa240d0f-7890-4a77-b97f-0537437eeb3a",
+      "name": "Schedule Trigger"
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1dh-gBo6fGTFWFC2CnmYyT0Dt7eNSksuBIY-tChtsSIs",
+          "mode": "list",
+          "cachedResultName": "University_Database",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1dh-gBo6fGTFWFC2CnmYyT0Dt7eNSksuBIY-tChtsSIs/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 1526653349,
+          "mode": "list",
+          "cachedResultName": "Assignments",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1dh-gBo6fGTFWFC2CnmYyT0Dt7eNSksuBIY-tChtsSIs/edit#gid=1526653349"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        224,
+        0
+      ],
+      "id": "cbaa34ad-605a-457c-be49-739709444c32",
+      "name": "Get row(s) in sheet",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "te5i4J2ATIyPOVs8",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const records = items.map(item => item.json);\nconst studentMap = {};\n\nfor (const rec of records) {\n  // Only consider graded assignments\n  if (rec.status !== 'graded') continue;\n  \n  const email = rec.student_email;\n  if (!studentMap[email]) {\n    studentMap[email] = { total: 0, count: 0, course: rec.course };\n  }\n  studentMap[email].total += Number(rec.final_grade);\n  studentMap[email].count += 1;\n}\n\nconst results = [];\nfor (const email in studentMap) {\n  const data = studentMap[email];\n  const average = data.total / data.count;\n  const passOrFail = average >= 4 ? 'Pass' : 'Fail'; // 4/10 average = 40%, adjust threshold as needed\n\n  results.push({\n    json: {\n      student_email: email,\n      course: data.course,\n      average_grade: Math.round(average * 100) / 100,\n      result: passOrFail\n    }\n  });\n}\n\nreturn results;"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        448,
+        0
+      ],
+      "id": "e315307e-737f-40c8-af03-c1e2f51ff6ab",
+      "name": "Code in JavaScript"
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "1dh-gBo6fGTFWFC2CnmYyT0Dt7eNSksuBIY-tChtsSIs",
+          "mode": "list",
+          "cachedResultName": "University_Database",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1dh-gBo6fGTFWFC2CnmYyT0Dt7eNSksuBIY-tChtsSIs/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 721039376,
+          "mode": "list",
+          "cachedResultName": "Grades",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1dh-gBo6fGTFWFC2CnmYyT0Dt7eNSksuBIY-tChtsSIs/edit#gid=721039376"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "student_email": "={{ $json.student_email }}",
+            "course": "={{ $json.course }}",
+            "average_grade": "={{ $json.average_grade }}",
+            "result": "={{ $json.result }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "student_email",
+              "displayName": "student_email",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "course",
+              "displayName": "course",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "average_grade",
+              "displayName": "average_grade",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "result",
+              "displayName": "result",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        672,
+        0
+      ],
+      "id": "d5d961b5-8ec8-4e4c-937a-5a7cbf3c9178",
+      "name": "Append row in sheet",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "te5i4J2ATIyPOVs8",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "01910056-a98d-4fc7-b8e0-784a81a3f853",
+              "leftValue": "={{ $json.result }}",
+              "rightValue": "Pass",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        896,
+        0
+      ],
+      "id": "8b19f192-aaa5-4d4a-a55f-7bc671a4c80f",
+      "name": "If"
+    },
+    {
+      "parameters": {
+        "sendTo": "nishthakumar21.03@gmail.com",
+        "subject": "Congratulations - You Passed!",
+        "message": "=Dear Student,  Congratulations! You have successfully passed the course: {{ $json.course }}  Your average grade: {{ $json.average_grade }}/10 Result: {{ $json.result }}  Keep up the great work and continue striving for excellence.  Best regards, University Academic Office",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        1120,
+        -96
+      ],
+      "id": "f4e2ec8c-3af9-4752-a3dd-3bc4970f5b0a",
+      "name": "Send a message",
+      "webhookId": "bc4ab392-fab3-4b49-8561-4f90c5f1d72c",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "6WJdBvN5ZV1LScYk",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sendTo": "nishthakumar21.03@gmail.com",
+        "subject": "Result Notice",
+        "message": "=Dear Student,  This is to inform you about your result for the course: {{ $json.course }}  Your average grade: {{ $json.average_grade }}/10 Result: {{ $json.result }}  Unfortunately, your performance did not meet the minimum passing requirement.  We encourage you to reach out to your faculty advisor to discuss ways to improve  and access any additional support or resources available.  Best regards, University Academic Office",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        1120,
+        96
+      ],
+      "id": "e9cddd29-2e60-4328-8038-2a8af726112f",
+      "name": "Send a message1",
+      "webhookId": "375b13b1-8dcb-4998-a5d2-e471dd8b73f1",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "6WJdBvN5ZV1LScYk",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "vET7WD8CaTzCGhmF",
+          "mode": "list",
+          "cachedResultUrl": "/workflow/vET7WD8CaTzCGhmF",
+          "cachedResultName": "Workflow 5 — Certificate Generation & Reports"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {},
+          "matchingColumns": [],
+          "schema": [],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": true
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.3,
+      "position": [
+        1344,
+        -96
+      ],
+      "id": "dc1354c1-e611-49bd-bea9-0382819b989b",
+      "name": "Call 'Workflow 5 — Certificate Generation & Reports'"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Schedule Trigger": {
+      "main": [
+        [
+          {
+            "node": "Get row(s) in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get row(s) in sheet": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript": {
+      "main": [
+        [
+          {
+            "node": "Append row in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Append row in sheet": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "Send a message",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Send a message1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send a message": {
+      "main": [
+        [
+          {
+            "node": "Call 'Workflow 5 — Certificate Generation & Reports'",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false
+  },
+  "versionId": "119118de-e603-4350-b9ac-ebe66a4ed67d",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "421f5f2ee7a19de135bba0d431bb55944c6e13a852ca7bf81a7f68e37fd7c2e2"
+  },
+  "nodeGroups": [],
+  "id": "mofPSmdsK0FYHUcU",
+  "tags": []
+}

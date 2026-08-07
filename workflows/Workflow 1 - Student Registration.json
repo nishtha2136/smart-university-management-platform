@@ -1,0 +1,265 @@
+{
+  "name": "Workflow 1 - Student Registration",
+  "nodes": [
+    {
+      "parameters": {
+        "pollTimes": {
+          "item": [
+            {
+              "mode": "everyMinute"
+            }
+          ]
+        },
+        "documentId": {
+          "__rl": true,
+          "value": "1sEzx93TxW4QM1ZZ-4oja3Wcok6XIcgpUU2NpaUqXhkg",
+          "mode": "list",
+          "cachedResultName": "Students (Responses)",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1sEzx93TxW4QM1ZZ-4oja3Wcok6XIcgpUU2NpaUqXhkg/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 679218274,
+          "mode": "list",
+          "cachedResultName": "Form Responses 1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1sEzx93TxW4QM1ZZ-4oja3Wcok6XIcgpUU2NpaUqXhkg/edit#gid=679218274"
+        },
+        "event": "rowAdded",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheetsTrigger",
+      "typeVersion": 1,
+      "position": [
+        0,
+        0
+      ],
+      "id": "73fd3061-dbb6-46a5-904a-d3d028655c9d",
+      "name": "Google Sheets Trigger",
+      "credentials": {
+        "googleSheetsTriggerOAuth2Api": {
+          "id": "l73TjyJxVufYjoAe",
+          "name": "Google Sheets Trigger account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "815c848f-2517-4837-90ba-6a585c079a6b",
+              "name": "student_name",
+              "value": "={{ $json[\"Full Name\"] }}",
+              "type": "string"
+            },
+            {
+              "id": "5fdb3f01-6f43-456f-8e87-eb9d90e52961",
+              "name": "email",
+              "value": "={{ $json[\"Email\"] }}",
+              "type": "string"
+            },
+            {
+              "id": "9a8fbd2c-b0ce-4106-9f6c-0bc8fc748a1f",
+              "name": "course",
+              "value": "={{ $json[\"Course\"] }}",
+              "type": "string"
+            },
+            {
+              "id": "1ca193f4-a79e-48c4-95b5-97a90ecb39fe",
+              "name": "phone",
+              "value": "={{ $json[\"Phone Number\"] }}",
+              "type": "string"
+            },
+            {
+              "id": "c39dc02c-2e25-4667-879a-4469e639658e",
+              "name": "registration_date",
+              "value": "={{ $now.toISODate() }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.5,
+      "position": [
+        224,
+        0
+      ],
+      "id": "93d94393-8844-4587-92c3-1190c6693f33",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "1dh-gBo6fGTFWFC2CnmYyT0Dt7eNSksuBIY-tChtsSIs",
+          "mode": "list",
+          "cachedResultName": "University_Database",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1dh-gBo6fGTFWFC2CnmYyT0Dt7eNSksuBIY-tChtsSIs/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "students",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1dh-gBo6fGTFWFC2CnmYyT0Dt7eNSksuBIY-tChtsSIs/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "student_name": "={{ $json.student_name }}",
+            "email": "={{ $json.email }}",
+            "course": "={{ $json.course }}",
+            "phone": "={{ $json.phone }}",
+            "registration_date": "={{ $json.registration_date }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "student_name",
+              "displayName": "student_name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "email",
+              "displayName": "email",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "course",
+              "displayName": "course",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "phone",
+              "displayName": "phone",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "registration_date",
+              "displayName": "registration_date",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        448,
+        0
+      ],
+      "id": "76d76c3f-b4ad-4bf9-85dd-3670024db24a",
+      "name": "Append row in sheet",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "te5i4J2ATIyPOVs8",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $('Edit Fields').item.json.email }}",
+        "subject": "Welcome to the University Portal!",
+        "message": "=Hi {{ $json.student_name }},       Your registration for {{ $json.course }} is complete.      Welcome aboard!       University Admin Team",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        672,
+        0
+      ],
+      "id": "d1728490-1a50-40af-a875-e58705b8e995",
+      "name": "Send a message",
+      "webhookId": "3acfa349-f742-4623-ac2c-c0a567a441e0",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "6WJdBvN5ZV1LScYk",
+          "name": "Gmail account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Google Sheets Trigger": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "Append row in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Append row in sheet": {
+      "main": [
+        [
+          {
+            "node": "Send a message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false
+  },
+  "versionId": "9d0b84c1-5322-4fb7-af02-298e4c9c0a81",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "421f5f2ee7a19de135bba0d431bb55944c6e13a852ca7bf81a7f68e37fd7c2e2"
+  },
+  "nodeGroups": [],
+  "id": "5Ge5iYlYi7AGL1Cc",
+  "tags": []
+}

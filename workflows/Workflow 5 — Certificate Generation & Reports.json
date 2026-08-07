@@ -1,0 +1,480 @@
+{
+  "name": "Workflow 5 — Certificate Generation & Reports",
+  "nodes": [
+    {
+      "parameters": {
+        "inputSource": "passthrough"
+      },
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        -16,
+        0
+      ],
+      "id": "73978425-0c7e-494c-8d94-ac4bf8365f14",
+      "name": "When Executed by Another Workflow"
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1dh-gBo6fGTFWFC2CnmYyT0Dt7eNSksuBIY-tChtsSIs",
+          "mode": "list",
+          "cachedResultName": "University_Database",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1dh-gBo6fGTFWFC2CnmYyT0Dt7eNSksuBIY-tChtsSIs/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "students",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1dh-gBo6fGTFWFC2CnmYyT0Dt7eNSksuBIY-tChtsSIs/edit#gid=0"
+        },
+        "filtersUI": {
+          "values": [
+            {
+              "lookupColumn": "email",
+              "lookupValue": "={{ $json.student_email }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        208,
+        0
+      ],
+      "id": "d0e8eb53-b86f-4d99-8ff0-3c7b9fe43db3",
+      "name": "Get row(s) in sheet",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "te5i4J2ATIyPOVs8",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "copy",
+        "fileId": {
+          "__rl": true,
+          "value": "1adpi3a4bDoXOQsZV7W620PkZhRVr19FQkKnda9W39N8",
+          "mode": "list",
+          "cachedResultName": "Certificate_Template",
+          "cachedResultUrl": "https://docs.google.com/document/d/1adpi3a4bDoXOQsZV7W620PkZhRVr19FQkKnda9W39N8/edit?usp=drivesdk"
+        },
+        "name": "=Certificate - {{ $json.student_name }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        432,
+        0
+      ],
+      "id": "9d0cbd5e-52b1-477c-b432-09895ae67760",
+      "name": "Copy file",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "XhS7HVM4RcGKQtnd",
+          "name": "Google Drive account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "documentURL": "={{ $json.id }}",
+        "actionsUi": {
+          "actionFields": [
+            {
+              "action": "replaceAll",
+              "text": "{{student_name}}",
+              "replaceText": "{{ $('Get row(s) in sheet').item.json.student_name }}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.googleDocs",
+      "typeVersion": 2,
+      "position": [
+        656,
+        0
+      ],
+      "id": "11826c1c-7313-4076-aee7-be0960deade3",
+      "name": "Update a document",
+      "credentials": {
+        "googleDocsOAuth2Api": {
+          "id": "dzu2KY6OgzOznDvD",
+          "name": "Google Docs account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "download",
+        "fileId": {
+          "__rl": true,
+          "value": "={{ $('Copy file').item.json.id }}",
+          "mode": "id"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        880,
+        0
+      ],
+      "id": "721be75a-1de5-4af2-92e9-99fc2e3cc8f7",
+      "name": "Download file",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "XhS7HVM4RcGKQtnd",
+          "name": "Google Drive account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $('Get row(s) in sheet').item.json.email }}",
+        "subject": "Your Certificate - {{ $('When Executed by Another Workflow').item.json.course }}",
+        "message": "=Dear {{ $('Get row(s) in sheet').item.json.student_name }},       Congratulations on successfully completing {{ $('When Executed by Another Workflow').item.json.course }}!       Please find your certificate attached.       Best regards,      University Academic Office",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        1104,
+        0
+      ],
+      "id": "711eb7e7-a315-415b-b3d4-825fef07cb02",
+      "name": "Send a message",
+      "webhookId": "ceded236-5064-4763-9836-40e5a3f77379",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "6WJdBvN5ZV1LScYk",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "weeks",
+              "triggerAtDay": [
+                5
+              ],
+              "triggerAtHour": 18
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.3,
+      "position": [
+        -16,
+        224
+      ],
+      "id": "3a9084f4-91aa-46ee-bde8-7d9fb9f4242f",
+      "name": "Schedule Trigger"
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1dh-gBo6fGTFWFC2CnmYyT0Dt7eNSksuBIY-tChtsSIs",
+          "mode": "list",
+          "cachedResultName": "University_Database",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1dh-gBo6fGTFWFC2CnmYyT0Dt7eNSksuBIY-tChtsSIs/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 721039376,
+          "mode": "list",
+          "cachedResultName": "Grades",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1dh-gBo6fGTFWFC2CnmYyT0Dt7eNSksuBIY-tChtsSIs/edit#gid=721039376"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        208,
+        224
+      ],
+      "id": "7ad6ef6e-3fb4-45ca-8095-0f5dc3aa0688",
+      "name": "Get row(s) in sheet1",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "te5i4J2ATIyPOVs8",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const records = items.map(item => item.json);\n\nconst totalStudents = records.length;\nconst passCount = records.filter(r => r.result === 'Pass').length;\nconst failCount = records.filter(r => r.result === 'Fail').length;\nconst passRate = totalStudents > 0 ? Math.round((passCount / totalStudents) * 10000) / 100 : 0;\n\nconst avgGradeOverall = totalStudents > 0\n  ? Math.round((records.reduce((sum, r) => sum + Number(r.average_grade), 0) / totalStudents) * 100) / 100\n  : 0;\n\nreturn [{\n  json: {\n    total_students: totalStudents,\n    passed: passCount,\n    failed: failCount,\n    pass_rate_percent: passRate,\n    overall_average_grade: avgGradeOverall,\n    report_date: new Date().toISOString().split('T')[0]\n  }\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        432,
+        224
+      ],
+      "id": "ddab5fb7-0d0d-4d1d-bf51-593d7048d51a",
+      "name": "Code in JavaScript"
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "1dh-gBo6fGTFWFC2CnmYyT0Dt7eNSksuBIY-tChtsSIs",
+          "mode": "list",
+          "cachedResultName": "University_Database",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1dh-gBo6fGTFWFC2CnmYyT0Dt7eNSksuBIY-tChtsSIs/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 2138980110,
+          "mode": "list",
+          "cachedResultName": "Reports",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1dh-gBo6fGTFWFC2CnmYyT0Dt7eNSksuBIY-tChtsSIs/edit#gid=2138980110"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {},
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "report_date",
+              "displayName": "report_date",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "total_students",
+              "displayName": "total_students",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "passed",
+              "displayName": "passed",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "failed",
+              "displayName": "failed",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "pass_rate_percent",
+              "displayName": "pass_rate_percent",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "overall_average_grade",
+              "displayName": "overall_average_grade",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        656,
+        224
+      ],
+      "id": "231b5c42-121b-46fc-91f7-9c92dbf5a5de",
+      "name": "Append row in sheet",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "te5i4J2ATIyPOVs8",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sendTo": "nishthakumar21.03@gmail.com",
+        "subject": "=Weekly Academic Report - {{ $json.report_date }}",
+        "message": "=Weekly Academic Performance Report      Date: {{ $json.report_date }}       Total Students: {{ $json.total_students }}      Passed: {{ $json.passed }}      Failed: {{ $json.failed }}      Pass Rate: {{ $json.pass_rate_percent }}%      Overall Average Grade: {{ $json.overall_average_grade }}/10       University Academic Office",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        880,
+        224
+      ],
+      "id": "583221fa-704f-439c-b231-4c17da92dd2f",
+      "name": "Send a message1",
+      "webhookId": "aac4330c-b6c9-47f8-babd-a702dbcaa62f",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "6WJdBvN5ZV1LScYk",
+          "name": "Gmail account"
+        }
+      }
+    }
+  ],
+  "pinData": {
+    "When Executed by Another Workflow": [
+      {
+        "json": {
+          "student_email": "nishthakumar21.03@gmail.com",
+          "course": "BCA",
+          "average_grade": 8,
+          "result": "Pass"
+        }
+      }
+    ]
+  },
+  "connections": {
+    "When Executed by Another Workflow": {
+      "main": [
+        [
+          {
+            "node": "Get row(s) in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get row(s) in sheet": {
+      "main": [
+        [
+          {
+            "node": "Copy file",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Copy file": {
+      "main": [
+        [
+          {
+            "node": "Update a document",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update a document": {
+      "main": [
+        [
+          {
+            "node": "Download file",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Download file": {
+      "main": [
+        [
+          {
+            "node": "Send a message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Schedule Trigger": {
+      "main": [
+        [
+          {
+            "node": "Get row(s) in sheet1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get row(s) in sheet1": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript": {
+      "main": [
+        [
+          {
+            "node": "Append row in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Append row in sheet": {
+      "main": [
+        [
+          {
+            "node": "Send a message1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false
+  },
+  "versionId": "f62abc40-d527-49c9-ae2a-c768deb3b1a3",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "421f5f2ee7a19de135bba0d431bb55944c6e13a852ca7bf81a7f68e37fd7c2e2"
+  },
+  "nodeGroups": [],
+  "id": "vET7WD8CaTzCGhmF",
+  "tags": []
+}
