@@ -1,6 +1,6 @@
 # Smart University Management Platform
 
-An n8n-based automation platform built for the **Summer School '26 Capstone Project**. It automates the full academic administration lifecycle for a university — from student registration through attendance, AI-assisted assignment evaluation, result publication, and certificate generation — using five interconnected n8n workflows.
+An n8n-based automation platform. It automates the full academic administration lifecycle for a university — from student registration through attendance, AI-assisted assignment evaluation, result publication, and certificate generation — using five interconnected n8n workflows.
 
 ## Problem
 
